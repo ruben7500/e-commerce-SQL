@@ -1,0 +1,103 @@
+-- Supprimer les tables dans l'ordre approprié
+DROP TABLE IF EXISTS Invoice;
+DROP TABLE IF EXISTS Command;
+DROP TABLE IF EXISTS ProductsInCart;
+DROP TABLE IF EXISTS Cart;
+DROP TABLE IF EXISTS Rate;
+DROP TABLE IF EXISTS Photos;
+DROP TABLE IF EXISTS Product;
+DROP TABLE IF EXISTS Payment;
+DROP TABLE IF EXISTS Userr;
+DROP TABLE IF EXISTS Adress;
+
+-- TABLE Address
+CREATE TABLE Adress (
+    IdAdress INT PRIMARY KEY AUTO_INCREMENT,
+    Street VARCHAR(255),
+    City VARCHAR(255),
+    PostalCode VARCHAR(10),
+    Country VARCHAR(255)
+);
+
+-- TABLE User
+CREATE TABLE Userr (
+    IdUser INT PRIMARY KEY AUTO_INCREMENT,
+    IdAdresse INT,
+    Username VARCHAR(255) NOT NULL,
+    Name VARCHAR(255) NOT NULL,
+    FirstName VARCHAR(255),
+    Email VARCHAR(255) NOT NULL,
+    Password VARBINARY(255) NOT NULL, -- Crypté
+    PhoneNumber VARCHAR(15),
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdateAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (IdAdresse) REFERENCES Adress(IdAdress)
+);
+
+-- TABLE Payment
+CREATE TABLE Payment (
+    IdPayment INT PRIMARY KEY AUTO_INCREMENT,
+    IdUser INT NOT NULL,
+    CardNumber VARBINARY(255) NOT NULL, -- Crypté
+    Iban VARBINARY(255) NOT NULL, -- Crypté
+    FOREIGN KEY (IdUser) REFERENCES Userr(IdUser)
+);
+
+-- TABLE Product
+CREATE TABLE Product (
+    IdProduct INT PRIMARY KEY AUTO_INCREMENT,
+    ProductName VARCHAR(255) NOT NULL,
+    ProductPrice DECIMAL(10, 2) NOT NULL,
+    ProductDescription TEXT
+);
+
+-- TABLE Photos
+CREATE TABLE Photos (
+    IdPhoto INT PRIMARY KEY AUTO_INCREMENT,
+    Type VARCHAR(255),
+    IdProduct INT,
+    FOREIGN KEY (IdProduct) REFERENCES Product(IdProduct)
+);
+
+-- TABLE Rate
+CREATE TABLE Rate (
+    IdRate INT PRIMARY KEY AUTO_INCREMENT,
+    IdProduct INT,
+    Description TEXT,
+    NbStar INT CHECK (NbStar >= 0 AND NbStar <= 5),
+    FOREIGN KEY (IdProduct) REFERENCES Product(IdProduct)
+);
+
+-- TABLE Cart
+CREATE TABLE Cart (
+    IdCart INT PRIMARY KEY AUTO_INCREMENT,
+    IdUser INT NOT NULL,
+    CartStatus VARCHAR(255),
+    FOREIGN KEY (IdUser) REFERENCES Userr(IdUser)
+);
+
+-- TABLE ProductsInCart
+CREATE TABLE ProductsInCart (
+    IdProductsInCart INT PRIMARY KEY AUTO_INCREMENT,
+    IdCart INT NOT NULL,
+    IdProduct INT NOT NULL,
+    Quantity INT NOT NULL,
+    FOREIGN KEY (IdCart) REFERENCES Cart(IdCart),
+    FOREIGN KEY (IdProduct) REFERENCES Product(IdProduct)
+);
+
+-- TABLE Command
+CREATE TABLE Command (
+    IdCommand INT PRIMARY KEY AUTO_INCREMENT,
+    IdCart INT NOT NULL,
+    Status VARCHAR(255),
+    FOREIGN KEY (IdCart) REFERENCES Cart(IdCart)
+);
+
+-- TABLE Invoice
+CREATE TABLE Invoice (
+    IdInvoice INT PRIMARY KEY AUTO_INCREMENT,
+    IdCommand INT NOT NULL,
+    TotalPrice DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (IdCommand) REFERENCES Command(IdCommand)
+);
